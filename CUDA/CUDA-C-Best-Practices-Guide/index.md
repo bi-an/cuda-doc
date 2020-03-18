@@ -1,4 +1,4 @@
-[CUDA C Best Paratices](https://docs.nvidia.com/cuda/cuda-c-best-practices-guide/index.html)
+参见[CUDA C Best Paratices](https://docs.nvidia.com/cuda/cuda-c-best-practices-guide/index.html)
 
 
 # 9. 内存优化
