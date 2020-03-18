@@ -64,8 +64,10 @@ for (i=0; i<nStreams; i++) {
 
 这段代码假设N可以被nThreads * nStreams整除。因为流中的执行是顺序进行的，所以在它们各自的流中的数据传输完成之前，没有一个内核会启动。当前的gpu可以同时处理异步数据传输和执行内核。
 
-Figure 1. Timeline comparison for copy and kernel execution  
-![Image text](https://bi-an.github.io/CUDA/Best-Practices-Guide/images/9-1.png)
+*图9-1 内存复制和kernel执行的时间线比较*
+<div align=center>![Image text](https://bi-an.github.io/CUDA/Best-Practices-Guide/images/9-1.png)</div>
+>上方：顺序（Sequential）  
+>下方：并发（Concurrent）
 
 
 ### 9.1.3 零拷贝内存（Zero Copy）
@@ -88,3 +90,24 @@ kernel<<<gridSize, blockSize>>>(a_map);
 
 注意:映射固定主机内存允许CPU-GPU的内存传输与计算重叠，同时避免使用CUDA流。但是，由于对这些内存区域的任何重复访问都会导致CPU-GPU之间的重复传输，因此可以考虑在设备内存中创建第二个区域来手动缓存之前读取的主机内存数据。
 
+## 9.2 设备内存空间
+
+*图9-2 设备内存空间*
+<div align=center>![Image text](https://bi-an.github.io/CUDA/Best-Practices-Guide/images/9-2.png)</div>
+
+
+*表9-1 设备内存的显著特征*
+
+| Memory   | Location on/off chip | Cached | Access | Scope                | Lifetime        |
+| -------- | -------------------- | ------ | ------ | -------------------- | --------------- |
+| Register | On                   | n/a    | R/W    | 1 thread             | Thread          |
+| Local    | Off                  | Yes†† | R/W    | 1 thread             | Thread          |
+| Shared   | On                   | n/a    | R/W    | All threads in block | Block           |
+| Global   | Off                  | †    | R/W    | All threads + host   | Host allocation |
+| Constant | Off                  | Yes    | R      | All threads + host   | Host allocation |
+| Texture  | Off                  | Yes    | R      | All threads + host   | Host allocation |
+|          |                      |        |        |                      |                 |
+
+>† 在计算能力6.0和7.x的设备上默认缓存在L1和L2中；默认情况下，在计算能力较低的设备上，只在L2中缓存，但有些设备允许通过可选的编译标志在L1中进行缓存。
+
+>†† 默认缓存在L1和L2中，但计算能力为5.x的设备除外；5.x计算能力仅在L2中缓存局部变量。
