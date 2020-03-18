@@ -65,7 +65,7 @@ for (i=0; i<nStreams; i++) {
 这段代码假设N可以被nThreads * nStreams整除。因为流中的执行是顺序进行的，所以在它们各自的流中的数据传输完成之前，没有一个内核会启动。当前的gpu可以同时处理异步数据传输和执行内核。
 
 *图9-1 内存复制和kernel执行的时间线比较*
-<div align=center>![Image text](https://bi-an.github.io/CUDA/Best-Practices-Guide/images/9-1.png)</div>
+<div align=center>![Image text](images/9-1.png)</div>
 >上方：顺序（Sequential）  
 >下方：并发（Concurrent）
 
@@ -93,7 +93,7 @@ kernel<<<gridSize, blockSize>>>(a_map);
 ## 9.2 设备内存空间
 
 *图9-2 设备内存空间*
-<div align=center>![Image text](https://bi-an.github.io/CUDA/Best-Practices-Guide/images/9-2.png)</div>
+<div align=center>![Image text](images/9-2.png)</div>
 
 
 *表9-1 设备内存的显著特征*
