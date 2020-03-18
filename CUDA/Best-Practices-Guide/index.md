@@ -64,8 +64,8 @@ for (i=0; i<nStreams; i++) {
 
 这段代码假设N可以被nThreads * nStreams整除。因为流中的执行是顺序进行的，所以在它们各自的流中的数据传输完成之前，没有一个内核会启动。当前的gpu可以同时处理异步数据传输和执行内核。
 
-Figure 1. Timeline comparison for copy and kernel execution
-![Image text]https://bi-an.github.io/CUDA/Best-Practices-Guide/images/9-1.png
+Figure 1. Timeline comparison for copy and kernel execution  
+![Image text](https://bi-an.github.io/CUDA/Best-Practices-Guide/images/9-1.png)
 
 
 ### 9.1.3 零拷贝内存（Zero Copy）
