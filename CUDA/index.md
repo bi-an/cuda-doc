@@ -1,5 +1,7 @@
 ## Welcome to GitHub Pages
 
+[CUDA优化](https://bi-an.github.io/CUDA/CUDA优化.md)
+
 You can use the [editor on GitHub](https://github.com/bi-an/github.blog/edit/master/index.md) to maintain and preview the content for your website in Markdown files.
 
 Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
