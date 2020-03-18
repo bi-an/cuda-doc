@@ -1,1 +1,1 @@
-[Best-Practices-Guide](https://bi-an.github.com/CUDA/Best-Practices-Guide)
+[Best-Practices-Guide](https://bi-an.github.io/CUDA/Best-Practices-Guide)
