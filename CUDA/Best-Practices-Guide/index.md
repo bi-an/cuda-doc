@@ -64,6 +64,10 @@ for (i=0; i<nStreams; i++) {
 
 这段代码假设N可以被nThreads * nStreams整除。因为流中的执行是顺序进行的，所以在它们各自的流中的数据传输完成之前，没有一个内核会启动。当前的gpu可以同时处理异步数据传输和执行内核。
 
+Figure 1. Timeline comparison for copy and kernel execution
+![Image text]https://bi-an.github.io/CUDA/Best-Practices-Guide/9-1.png
+
+
 ### 9.1.3 零拷贝内存（Zero Copy）
 零拷贝是CUDA Toolkit v2.2及以上版本中增加的一个功能。它允许GPU线程直接访问主机内存。为此，它需要映射固定(非分页)内存。在集成的gpu上(即当CUDA设备属性结构的集成字段被设置为1)时，映射固定内存总是一个性能增益，因为它避免了多余的拷贝，因为集成的GPU和CPU内存在物理上是相同的。在独立的gpu上，映射固定内存只有在某些情况下才有优势。由于数据不是缓存在GPU上，映射的固定内存应该只被读写一次，读写内存的全局加载和存储应该被合并。零拷贝可以用来代替流，因为源于内核的数据传输会自动重叠内核执行，而无需设置和确定流的最佳数量。
 
@@ -83,3 +87,4 @@ kernel<<<gridSize, blockSize>>>(a_map);
 在这段代码中，`cudaGetDeviceProperties()`返回的结构的`canMapHostMemory`字段用于检查设备是否支持将主机内存映射到设备的地址空间。通过使用`cudaDeviceMapHost`调用`cudaSetDeviceFlags()`来启用页面锁定内存映射。注意，`cudaSetDeviceFlags()`必须在设置设备或进行需要状态的CUDA调用之前调用(本质上是在创建上下文之前)。使用`cudaHostAlloc()`分配页面锁定的映射主机内存，并通过函数`cudaHostGetDevicePointer()`获得指向映射设备地址空间的指针。在零拷贝主机代码中的代码中，kernel()可以使用指针`a_map`引用被映射的固定主机内存，这与a_map引用设备内存中的位置是完全一样的。
 
 注意:映射固定主机内存允许CPU-GPU的内存传输与计算重叠，同时避免使用CUDA流。但是，由于对这些内存区域的任何重复访问都会导致CPU-GPU之间的重复传输，因此可以考虑在设备内存中创建第二个区域来手动缓存之前读取的主机内存数据。
+
