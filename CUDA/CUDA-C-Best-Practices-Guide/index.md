@@ -1,4 +1,4 @@
-参见[CUDA C Best Paratices](https://docs.nvidia.com/cuda/cuda-c-best-practices-guide/index.html)
+参见 [CUDA C Best Paratices](https://docs.nvidia.com/cuda/cuda-c-best-practices-guide/index.html)
 
 
 # 9. 内存优化
@@ -98,6 +98,11 @@ kernel<<<gridSize, blockSize>>>(a_map);
 
 ![Image text](images/9-2.png)
 
+在这些不同的内存空间中，全局内存是最丰富的；  
+全局、本地和纹理内存的访问延迟最大，其次是常量内存、共享内存和寄存器文件。
+
+设备中的GPU的计算能力可以通过编程来查询，如deviceQuery CUDA示例所示。该程序的输出如[图11](images/11.png)所示。该信息是通过调用cudaGetDeviceProperties()并访问它返回的结构中的信息获得的。
+见 <https://docs.nvidia.com/cuda/cuda-c-best-practices-guide/index.html#cuda-compute-capability>
 
 *表9-1 设备内存的显著特征*
 
@@ -109,8 +114,10 @@ kernel<<<gridSize, blockSize>>>(a_map);
 | Global   | Off                  | †    | R/W    | All threads + host   | Host allocation |
 | Constant | Off                  | Yes    | R      | All threads + host   | Host allocation |
 | Texture  | Off                  | Yes    | R      | All threads + host   | Host allocation |
-|          |                      |        |        |                      |                 |
 
 >† 在计算能力6.0和7.x的设备上默认缓存在L1和L2中；默认情况下，在计算能力较低的设备上，只在L2中缓存，但有些设备允许通过可选的编译标志在L1中进行缓存。
 
 >†† 默认缓存在L1和L2中，但计算能力为5.x的设备除外；5.x计算能力仅在L2中缓存局部变量。
+
+在纹理访问的情况下，如果一个纹理引用被绑定到全局内存中的一个线性数组，那么设备代码可以写入底层数组。绑定到CUDA数组的纹理引用可以通过绑定一个表面到相同的底层CUDA数组存储的表面写入操作（surface-writes）写入到CUDA数组)。应该避免在同一内核启动中从纹理读取数据同时写入其底层全局内存数组，因为纹理缓存是只读的，并且在修改关联的全局内存时不会失效。
+
