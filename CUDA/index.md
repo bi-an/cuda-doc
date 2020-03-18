@@ -1,1 +1,1 @@
-[CUDA C Best Paratices](https://bi-an.github.io/CUDA/Best-Practices-Guide)
+[CUDA C Best Paratices](https://bi-an.github.io/CUDA/CUDA-C-Best-Practices-Guide)
