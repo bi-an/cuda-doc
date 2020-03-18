@@ -1,3 +1,5 @@
+\[[返回上一层](..)\]
+
 参见 [CUDA C Best Paratices](https://docs.nvidia.com/cuda/cuda-c-best-practices-guide/index.html)
 
 
