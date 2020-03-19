@@ -1,4 +1,4 @@
-\[[返回上一层](..)\]
+\[[上级目标](..)\]
 
 参见 [CUDA C Best Paratices Guide](https://docs.nvidia.com/cuda/cuda-c-best-practices-guide/index.html)
 
@@ -101,7 +101,8 @@ kernel<<<gridSize, blockSize>>>(a_map);
 ![Image text](images/2.png)
 
 在这些不同的内存空间中，全局内存是最丰富的；  
-全局、本地（Local）和纹理内存的访问延迟最大，其次是常量内存、共享内存和寄存器文件。
+全局、本地（Local）和纹理内存的访问延迟最大，其次是常量内存、共享内存和寄存器文件。  
+**内存延迟：**Global > Local > Texture >> Constant > Shared > Register
 
 设备中的GPU的计算能力可以通过编程来查询，如deviceQuery CUDA示例所示。该程序的输出如[图11](images/11.png)所示。该信息是通过调用cudaGetDeviceProperties()并访问它返回的结构中的信息获得的。
 见 <https://docs.nvidia.com/cuda/cuda-c-best-practices-guide/index.html#cuda-compute-capability>
@@ -147,7 +148,7 @@ kernel<<<gridSize, blockSize>>>(a_map);
 
 ![Image data](images/3.png)
 
->此访问模式导致四个32字节事务，用红色矩形表示。
+>此访问模式导致四个32字节事务，用红色矩形表示。  
 >warpSize * 4 bytes = 128 bytes，也就是说，一个warp中每个线程访问一个float，那么总共需要128 bytes，合并访问4次，每次32 bytes。
 
 即使从四个32字节段中的任何一个中，只是请求单词的子集（例如，如果多个线程访问了同一个单词，或者某些线程未参与访问），都将获取完整的段。
@@ -176,28 +177,67 @@ __global__ void offsetCopy(float *odata, float* idata, int offset)
 这个kernel的功能是，从idata将数据复制到odata输出数组中，idata和odata数组都是位于全局内存中。
 在主机中，kernel位于offset从0到32的一个循环中被调用执行（例如图4对应了这种未对齐）。图5展示了不同offset内存复制的有效带宽。
 
-*图5 offsetCopy kernel的表现*
+*图5 offsetCopy kernel的性能*
 
 ![Image data](images/5.png)
 
-对于NVIDIA Tesla V100，不带偏移量或偏移量为8个字的倍数的全局内存访问将导致四个32字节事务。达到的带宽约为790 GB / s。否则，每个warp将加载五个32字节的段，并且我们期望获得内存吞吐量大约为其无偏移量的4/5倍。
+对于NVIDIA Tesla V100 ([compute capability](https://docs.nvidia.com/cuda/cuda-c-best-practices-guide/index.html#cuda-compute-capability) 7.0)，不带偏移量或偏移量为8个字的倍数的全局内存访问将导致四个32字节事务。达到的带宽约为790 GB / s。否则，每个warp将加载五个32字节的段，并且我们期望获得内存吞吐量大约为其无偏移量的4/5倍。
 
 然而，在此特定示例中，吞吐量约为9/10，这是因为相邻的warp重新使用了其邻居获取的缓存行（cache line，计算能力3.x的缓存行大小为[128字节](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#global-memory-3-0)（其他设备没有提及），缓存位置为L1或L2）。
 
 #### 9.2.1.4 跨步访问（Strided Accesses）
 如上所示，在顺序访问未对齐的情况下，缓存有助于减轻性能影响。
-但是，与非跨单元访问可能有所不同，这是在处理多维数据或矩阵时经常发生的模式。因此，确保实际使用的每个高速缓存行中的数据尽可能多地被使用是这些设备上存储器访问性能优化的重要部分。
+但是，非单元跨步（non-unit-stride，即步长超过一个单元）访问可能有所不同，这是在处理多维数据或矩阵时经常发生的模式。因此，确保实际使用的每个高速缓存行中的数据尽可能多地被使用是这些设备上存储器访问性能优化的重要部分。
 
-为了说明跨步访问对有效带宽的影响，请参阅A内核中的内核`strideCopy()`来说明非单位跨步数据复制，该复制将具有跨步元素的跨步数据从idata复制到odata来复制数据。
+如下代码说明了跨步访问对有效带宽的影响，该复制将具有跨步元素的跨步数据从idata复制到odata。
 
 ```
-// 
+// 非单元跨步数据拷贝
 __global__ void strideCopy(float *odata, float* idata, int stride)
 {
     int xid = (blockIdx.x*blockDim.x + threadIdx.x)*stride;
     odata[xid] = idata[xid];
 }
 ```
+
+图6说明了这种情况。在这种情况下，一个warp中的线程以2的步幅访问内存中的字。此操作导致Tesla V100（计算能力7.0）上每个warp加载八个L2缓存段。
+
+*图6 相邻线程以2的步长访问内存*
+
+![Image data](images/6.png)
+
+跨度为2导致加载/存储效率（load / store efficiency）为50％，这是因为事务中有一半的元素没有使用，浪费了带宽。因为一次内存事务将为warp内的线程读取128字节（32 threads * 4 bytes）数据，但是warp内的线程却只得到了所需数据的一半，所以一个warp需要两次访存事务。  
+*注：load / store一般是针对内存和寄存器之间，内存->寄存器为load，寄存器->内存为store.*  
+随着步幅的增加，有效带宽减小，直到为一个warp中的32个线程加载32个32个字节的段的点为止，如图7所示。
+
+*图7 strideCopy kernel的性能*
+
+![Image data](images/7.png)
+
+如图7所示，非单元跨步的全局内存访问任何时候都应该避免。
+一种避免方式就是使用共享内存。
+
+### 9.2.2 共享内存（Shared Memory）
+由于共享内存是片上的，因此与本地和全局内存相比，共享内存具有更高的带宽和更低的延迟——前提是线程之间不存在存储体冲突。
+
+#### 9.2.2.1 共享内存和存储体（Shared Memory and Memory Banks）
+为了获得用于并发访问的高内存带宽，共享内存被分为大小相等且可以同时访问的内存模块（存储体，`banks`）。
+
+为了获得用于并发访问的高内存带宽，共享内存被分为大小相等且可以同时访问的内存模块（存储体）。
+因此，跨越n个不同存储体的n个地址的任何内存加载/存储（load / store）可以同时处理，有效带宽是单个存储体带宽的n倍。
+
+但是，如果一个内存请求的多个地址映射到相同的存储体，则访问将被序列化——**存储体冲突（[`Bank conflicts`](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#shared-memory-5-x)）**。
+硬件将具有存储体冲突的内存请求拆分为尽可能多的单独的无冲突请求，从而将有效带宽减少等于单独的内存请求数量的因数。
+这里的一个例外是，当线程束中的多个线程寻址同一共享内存位置时，会导致广播。在这种情况下，来自不同存储体的多个广播将合并为从请求的共享内存位置到线程的单个多播。
+
+在5.x或更高版本的计算能力的设备上，每个时钟周期，每个bank都有32位（32-bit）的带宽，并且将连续的32位字（32-bit words）分配给连续的存储体。
+warp大小为32个线程，并且bank数量也为32，因此在warp中的任何线程之间都可能发生bank conflicts.
+
+共享内存具有32个存储体，这些存储体组织为连续的32位字映射到连续的存储体。每个存储体每个时钟周期具有32位的带宽。  
+参见 [H.4.3 Shared Memory](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#shared-memory-5-x)
+
+存储体可以使用[`cudaDeviceSetSharedMemConfig()`](https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__DEVICE.html#group__CUDART__DEVICE_1ga4f3f8a422968f9524012f43ba852058)函数设置为4字节、8字节（
+共享内存配置见 [cudaSharedMemConfig](https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html#group__CUDART__TYPES_1g6e62d15f3c224625e8c9aa946f1709a6)）。
 
 ### 9.2.3 本地 / 局部内存（Local Memory）
 *本地内存之所以如此命名，是因为它的作用域是线程的本地，而不是因为它的物理位置。*事实上，本地内存是芯片外的。因此，访问本地内存与访问全局内存一样昂贵。换句话说，名称中的术语local并不意味着更快的访问。
@@ -208,14 +248,24 @@ __global__ void strideCopy(float *odata, float* idata, int stride)
 
 
 ### 9.2.4 纹理内存（Texture Memory）
-纹理内存是只读的。它会被缓存，因此，纹理获取只会在缓存未命中（cache miss）时，消耗一次设备内存读操作，之后它只需要从纹理缓存（texture cache）中读取。
+纹理和表面内存（Texture and Surface Memory）驻留在设备内存（device memory），并且被纹理缓存区缓存（texture cache）。  参见 \[[CUDA C Programming Guide: 5.3.2. Device Memory Accesses](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#device-memory-accesses)\]
+
+因此，纹理获取只会在缓存未命中（cache miss）时，消耗一次设备内存读操作，之后它只需要从纹理缓存（texture cache）中读取。
+
 纹理缓存针对2D空间局部性进行了优化，因此，同一个warp中读纹理地址在一起的线程将获得最佳性能。
+
 纹理内存被设计成流式读取，并且是常数时间延迟。也就是说，缓存命中降低了DRAM的带宽要求，却没有读取延迟。
+
+纹理内存是只读的。
 
 
 ### 9.2.5 常量内存（Constant Memory）
+常量内存空间驻留在设备内存中，并缓存在常量缓存（constant cache）中。
+
 在一个设备上总共有64 KB的常量内存。常量内存空间会被缓存。
+
 *warp内的线程对不同地址的访问是串行化的，因此访存成本与warp内所有线程读取的不同地址的数量成线性关系。*
+
 因此，当同一warp中的线程只访问几个不同的位置时，常量缓存是最好的。如果所有的线程都访问同一个位置，那么常量内存的访问速度可以和寄存器访问速度一样快。
 
 
