@@ -1,4 +1,4 @@
-\[[上级目标](..)\]
+\[[上级目录](..)\]
 
 参见 [CUDA C Best Paratices Guide](https://docs.nvidia.com/cuda/cuda-c-best-practices-guide/index.html)
 
@@ -217,8 +217,39 @@ __global__ void strideCopy(float *odata, float* idata, int stride)
 如图7所示，非单元跨步的全局内存访问任何时候都应该避免。
 一种避免方式就是使用共享内存。
 
+[**全局内存合并访问代码示例：**](http://cuda-programming.blogspot.com/2013/02/bank-conflicts-in-shared-memory-in-cuda.html)
+
+假设有一个3x4矩阵（int）
+```
+0 1 2 3
+4 5 6 7
+8 9 a b
+```
+实际内存格局为一维的：
+```
+0 1 2 3 4 5 6 7 8 9 a b
+```
+你有4个线程，那么有以下两种访问方式：
+```
+// 方式一
+thread 0:  0, 1, 2
+thread 1:  3, 4, 5
+thread 2:  6, 7, 8
+thread 3:  9, a, b
+
+// 方式二
+thread 0:  0, 4, 8
+thread 1:  1, 5, 9
+thread 2:  2, 6, a
+thread 3:  3, 7, b
+```
+方式一：线程第一次访问的分别是`0, 3, 6, 9`，不连续，所以没有被合并访问；  
+方式二：线程第一次访问的分别是`0, 1, 2, 3`，连续，于是被合并访问。
+
+
 ### 9.2.2 共享内存（Shared Memory）
-由于共享内存是片上的，因此与本地和全局内存相比，共享内存具有更高的带宽和更低的延迟——前提是线程之间不存在存储体冲突。
+由于共享内存是片上的，因此与本地和全局内存相比，共享内存具有更高的带宽和更低的延迟——前提是线程之间不存在存储体冲突。  
+共享内存分配有静态和动态方式，动态分配方式为`kernel<<<Dg,Db,Ns,S>>>`，第三个参数为动态内存字节数。
 
 #### 9.2.2.1 共享内存和存储体（Shared Memory and Memory Banks）
 为了获得用于并发访问的高内存带宽，共享内存被分为大小相等且可以同时访问的内存模块（存储体，`banks`）。
@@ -226,7 +257,7 @@ __global__ void strideCopy(float *odata, float* idata, int stride)
 为了获得用于并发访问的高内存带宽，共享内存被分为大小相等且可以同时访问的内存模块（存储体）。
 因此，跨越n个不同存储体的n个地址的任何内存加载/存储（load / store）可以同时处理，有效带宽是单个存储体带宽的n倍。
 
-但是，如果一个内存请求的多个地址映射到相同的存储体，则访问将被序列化——**存储体冲突（[`Bank conflicts`](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#shared-memory-5-x)）**。
+但是，*如果一个内存请求的多个不同地址映射到相同的存储体，则访问将被序列化*——**存储体冲突（[`Bank conflicts`](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#shared-memory-5-x)）**。
 硬件将具有存储体冲突的内存请求拆分为尽可能多的单独的无冲突请求，从而将有效带宽减少等于单独的内存请求数量的因数。
 这里的一个例外是，当线程束中的多个线程寻址同一共享内存位置时，会导致广播。在这种情况下，来自不同存储体的多个广播将合并为从请求的共享内存位置到线程的单个多播。
 
@@ -236,8 +267,16 @@ warp大小为32个线程，并且bank数量也为32，因此在warp中的任何�
 共享内存具有32个存储体，这些存储体组织为连续的32位字映射到连续的存储体。每个存储体每个时钟周期具有32位的带宽。  
 参见 [H.4.3 Shared Memory](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#shared-memory-5-x)
 
-存储体可以使用[`cudaDeviceSetSharedMemConfig()`](https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__DEVICE.html#group__CUDART__DEVICE_1ga4f3f8a422968f9524012f43ba852058)函数设置为4字节、8字节（
-共享内存配置见 [cudaSharedMemConfig](https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html#group__CUDART__TYPES_1g6e62d15f3c224625e8c9aa946f1709a6)）。
+存储体可以使用[`cudaDeviceSetSharedMemConfig()`](https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__DEVICE.html#group__CUDART__DEVICE_1ga4f3f8a422968f9524012f43ba852058)函数设置为4字节、8字节，默认为4字节。
+（共享内存配置见 [cudaSharedMemConfig](https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html#group__CUDART__TYPES_1g6e62d15f3c224625e8c9aa946f1709a6)）。
+
+
+[**Bank Conflicts代码示例：**](http://cuda-programming.blogspot.com/2013/02/bank-conflicts-in-shared-memory-in-cuda.html)
+
+
+
+
+[Bank Conflicts参考博客1](https://blog.csdn.net/Bruce_0712/article/details/65447608)  
 
 ### 9.2.3 本地 / 局部内存（Local Memory）
 *本地内存之所以如此命名，是因为它的作用域是线程的本地，而不是因为它的物理位置。*事实上，本地内存是芯片外的。因此，访问本地内存与访问全局内存一样昂贵。换句话说，名称中的术语local并不意味着更快的访问。
@@ -269,4 +308,11 @@ warp大小为32个线程，并且bank数量也为32，因此在warp中的任何�
 因此，当同一warp中的线程只访问几个不同的位置时，常量缓存是最好的。如果所有的线程都访问同一个位置，那么常量内存的访问速度可以和寄存器访问速度一样快。
 
 
+[内存分配方式](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#variable-memory-space-specifiers)
 
+[kernel执行方式：](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#execution-configuration)  
+形如`kernelFunc<<< Dg, Db, Ns, S >>>(params...)`，其中  
+`Dg`：`dim3`类型，指定grid维度，即`Dg.x * Dg.y * Dg.z`;  
+`Db`：`dim3`类型，指定block维度，即`Db.x * Db.y * Db.`;  
+`Ns`：`size_t`类型，为动态分配共享内存的字节数（附加到静态分配的共享内存上）；动态分配的内存由声明为`__shared__`的外部（extern）数组的任何变量使用; Ns为可选参数，默认为0;    
+`S`：`cudaStream_t`类型，指定关联的流；S为可选参数，默认为0（NULL流）。
