@@ -246,6 +246,26 @@ thread 3:  3, 7, b
 方式一：线程第一次访问的分别是`0, 3, 6, 9`，不连续，所以没有被合并访问；  
 方式二：线程第一次访问的分别是`0, 1, 2, 3`，连续，于是被合并访问。
 
+##### 全局内存合并访问的附加说明：
+
+**结构体**：
+
+可以使用__alignof()等进行对齐。
+
+**1D全局内存**：
+
+对于1D的全局内存访问模式是，线程为ID为tid的每个线程访问位于地址BaseAddress（类型为type\*）上的数组的一个元素，使用以下地址：  
+`BaseAddress + tid`  
+为合并访问，type必须满足上述大小和对齐要求。
+
+**2D全局内存**：
+
+对于  
+`BaseAddress + width * ty + tx`  
+block的宽度和width都必须为warpSize的倍数（如果是半个warp调度，则是half-warp大小的倍数）。
+
+`cudaMallocPitch()`和`cuMemAllocPitch()`以及相关的内存复制函数可以编写不依赖硬件的代码来符合内存的对齐和合并访问的约束的代码。
+
 
 ### 9.2.2 共享内存（Shared Memory）
 [L1 / shared memory：延迟10 ~ 20 cycles](https://www.sciencedirect.com/topics/computer-science/l1-cache)  
