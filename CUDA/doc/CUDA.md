@@ -8,9 +8,11 @@ warp是SM级别的，单个线程是SP级别的，SP每次运行一个线程。
 SM将block“解包”为warp，并在SM内部资源（例如core和SFU）可用时调度warp指令。
 
 # 指令延迟和内存延迟
-32-bit乘法：16 cycles
-L1/shared memory：10-20 cycles
-Global Memory：几百 cycles
+|操作|延迟（cycles）|
+|---|---|
+|32-bit乘法|16|
+|L1/shared memory|10-20|
+|Global Memory|几百|
 
 
 # 架构
