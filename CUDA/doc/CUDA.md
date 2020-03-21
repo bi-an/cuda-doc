@@ -7,6 +7,12 @@ warp是SM级别的，单个线程是SP级别的，SP每次运行一个线程。
 单个warp指令可以在任何给定的时钟周期内处理，但需要32个core才能完成（并且可能需要多个时钟周期才能完成，具体取决于指令）。
 SM将block“解包”为warp，并在SM内部资源（例如core和SFU）可用时调度warp指令。
 
+# 指令延迟和内存延迟
+32-bit乘法：16 cycles
+L1/shared memory：10-20 cycles
+Global Memory：几百 cycles
+
+
 # 架构
 每个SM都有L1 cache，所有的SM共享L2 cache；
 L1 cache：用于缓存local memory，包括临时寄存器溢出。
