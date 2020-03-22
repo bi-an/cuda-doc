@@ -2,6 +2,9 @@
 
 参见 [CUDA C Programming Guide Reference](https://docs.nvidia.com/cuda/cuda-c-programming-guide)
 
+### 3.1.4 应用程序兼容性（Application Compatibility）
+
+
 ### 3.2.4 页锁定主机内存（Page-Locked Host Memory）
 <https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#page-locked-host-memory>
 
@@ -88,12 +91,28 @@ ceil(T/warpSize, 1)
 
 一个block需要的共享内存大小等于静态和动态分配（kernel调用时的配置参数）的总量。
 
-kernel使用的寄存器数量可能对驻留warps的数量产生显著影响。例如，对于计算能力6.x的设备，如果一个kernel使用了64个寄存器，每个block有512个线程，使用很少的共享内存，那么，2个blocks（比如32个warps，其中`32=512*2/warpSize`）可以驻留在多处理器中，因为他们需要`2*512*64`个寄存器，等于多处理器拥有的寄存器数量（`65536`）。但是，一旦kernel多使用1个寄存器，那么就只能有一个block可以驻留，因为2个blocks则需要`2*512*65`个寄存器，超出了SM的硬件能力。因此，编译器试图在保持寄存器溢出(参见 [5.3.2. Device Memory Accesses](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#device-memory-accesses)）)和指令数量最小化的同时最小化寄存器的使用。寄存器使用可以使用`maxrregcount`编译选项和启动限制（ [B.23. Launch Bounds](#b23-launch-bounds) ）来控制。
+kernel使用的寄存器数量可能对驻留warps的数量产生显著影响。例如，对于计算能力6.x的设备，如果一个kernel使用了64个寄存器，每个block有512个线程，使用很少的共享内存，那么，2个blocks（比如32个warps，其中`32=512*2/warpSize`）可以驻留在多处理器中，因为他们需要`2*512*64`个寄存器，等于多处理器拥有的寄存器数量（`65536`）。但是，一旦kernel多使用1个寄存器，那么就只能有一个block可以驻留，因为2个blocks则需要`2*512*65`个寄存器，超出了SM的硬件能力。因此，编译器试图在保持寄存器溢出(参见 [5.3.2 设备内存访问](#532-device-memory-access) )和指令数量最小化的同时最小化寄存器的使用。寄存器使用可以使用`maxrregcount`编译选项和启动限制（ [B.23 启动限定](#b23-launch-bounds) ）来控制。
+
+寄存器文件被组织为32-bit寄存器，所以，寄存器中存放的任何变量都需要至少一个32-bit寄存器，比如一个`double`类型变量使用2个32-bit寄存器。
+
+应用程序也可以基于寄存器文件大小和共享内存的大小设置启动配置（kernel启动参数），取决于设备的计算能力，以及多处理器和内存带宽的设备,所有这些都可以运行时查询（见参考手册）。
+
+应该将每个块的线程数选择为warpSize的倍数，以避免尽可能由于warps不足导致的计算资源浪费。
+
+#### 5.2.3.1 占用率计算器
+
+有几个API函数可以帮助程序员根据寄存器和共享内存需求选择线程块大小。
+
+> * 占用率计算器API，`cudaOccupancyMaxActiveBlocksPerMultiprocessor()`，可以提供基于块大小和内核共享内存使用情况的占用率预测。该函数根据每个多处理器的并发线程块数量报告占用情况。
+>> * 注意，该值可以转换为其他指标，乘以每个块的warps数量会得出每个多处理器的并发warps数量；进一步将并行warps数除以每个多处理器的最大warps数，得出占用百分比。
+> * 基于占用率的启动配置器API，`cudaOccupancyMaxPotentialBlockSize()`和`cudaOccupancyMaxPotentialBlockSizeVariableSMem()`，启发式地（heuristically）计算可以实现最大多处理器级别（Multiprocessor-Level）占用率的执行配置。
 
 
 
 
-## 5.3 最大化内存吞吐量
+## 5.3 最大化内存吞吐量（Maximize Memory Throughput）
+
+### 5.3.2 设备内存访问（Device Memory Access）
 
 ## 5.4 最大化指令吞吐量
 
@@ -101,7 +120,7 @@ kernel使用的寄存器数量可能对驻留warps的数量产生显著影响。
 
 
 
-## B.23 启动限制（Launch Bounds）
+## B.23 启动限定（Launch Bounds）
 
 如 [5.2.3 多处理器级别](#523-multiprocessor-level) 中详细讨论的，内核使用的寄存器越少，多处理器上可能驻留的线程和线程块就越多，这可以提高性能。
 
@@ -120,7 +139,58 @@ MyKernel(...)
 如果启动限制被指定，编译器会首先限制kernel使用的寄存器数量为`L`去保证`minBlocksPerMultiprocessor`个blocks（或一个block，如果`minBlockPerMultiprocessor`没有被指定的话）能够驻留。编译器通过以下方法优化寄存器的使用:
 > * 如果初始寄存器使用量超过L，那么编译器减少它直至小于等于L，通常以本地内存增加和/或更高的指令数为代价；
 > * 如果初始寄存器使用量小于L，
->> * 如果`maxThreadPerBlock`被指定但是`minBlocksPerMultiprocessor`没有，那么编译器使用`maxThreadPerBlock`去决定寄存器使用门限，
+>> * 如果`maxThreadPerBlock`被指定但是`minBlocksPerMultiprocessor`没有，那么编译器使用`maxThreadPerBlock`去决定在`n`和`n+1`个常驻块之间转换（例如在 [5.2.3 多处理器级别](#523-multiprocessor-level) 的例子中，当使用一个较少的寄存器能为一个额外的常驻块腾出空间）的寄存器使用的门限，然后对没有指定启动限制（launch bounds）的也使用相同的启动式（heuristics）。
+>> * 如果`minBlocksPerMultiprocessor`和`maxThreadPerBlock`都被指定，编译器可能会尽可能增加寄存器使用量使接近L以减少指令数，这样可以更好地隐藏指令延迟。
 
-编译器使用`maxThreadsPerBlock`来确定在`n`和`n+1`个常驻块之间转换的寄存器使用阈值（例如，当使用一个较少的寄存器为一个额外的常驻块腾出空间，就像在 [5.2.3 多处理器级别](#523-multiprocessor-level) 的例子中）。然后应用类似的启发式时，没有指定启动界限；
+如果kernel一个block中使用超过启动限制`maxThreadPerBlock`的线程数执行，那么kernel可能启动失败。
+
+给定内核的最佳启动范围通常随主要架构修订版（architecture revisions）会有所不同。下面的示例代码显示了使用 [3.1.4 应用程序兼容性](#314-application-compatibility) 中引入的`__CUDA_ARCH__`宏通常如何在设备代码中处理此问题。
+
+```
+#define THREADS_PER_BLOCK          256
+#if __CUDA_ARCH__ >= 200
+    #define MY_KERNEL_MAX_THREADS  (2 * THREADS_PER_BLOCK)
+    #define MY_KERNEL_MIN_BLOCKS   3
+#else
+    #define MY_KERNEL_MAX_THREADS  THREADS_PER_BLOCK
+    #define MY_KERNEL_MIN_BLOCKS   2
+#endif
+
+// 设备代码
+__global__ void
+__launch_bounds__(MY_KERNEL_MAX_THREADS, MY_KERNEL_MIN_BLOCKS)
+MyKernel(...)
+{
+    ...
+}
+```
+
+通常，核函数`MyKernel`使用每个线程块的最大数量的线程（由`__launch_bounds()`的第一个参数指定）启动，它试图将`MY_KERNEL_MAX_THREADS`用作执行配置中每个块的线程数：
+
+```
+// 主机代码
+MyKernel<<<blocksPerGrid, MY_KERNEL_MAX_THREADS>>>(...); // Does not work!
+```
+
+但是，这将不起作用，因为如 [3.1.4 应用程序兼容性](#314-application-compatibility) 中所述，`__CUDA_ARCH__`在主机代码中未定义，因此，即使__CUDA_ARCH__大于或等于200，MyKernel也会以每个块256个线程启动。相反，应该以如下方式确定每个块的线程数：
+> * 方法一，在编译器使用不依赖于`__CUDA__ARCH__`的宏，比如
+```
+// Host code
+MyKernel<<<blocksPerGrid, THREADS_PER_BLOCK>>>(...);
+```
+
+> * 方法二，在运行时基于计算能力
+```
+// Host code
+cudaGetDeviceProperties(&deviceProp, device);
+int threadsPerBlock =
+          (deviceProp.major >= 2 ?
+                    2 * THREADS_PER_BLOCK : THREADS_PER_BLOCK);
+MyKernel<<<blocksPerGrid, threadsPerBlock>>>(...);
+```
+
+寄存器使用量可以通过编译选项`--ptxas option=-v`来报告。
+驻留块的数量可以从CUDA分析器（profiler）报告的占用率中得出（有关占用率的定义，请参阅 [5.3.2 设备内存访问](#532-device-memory-access) ）。
+
+一个文件中所有`__global__`函数的寄存器使用量可以通过`maxrregcount`编译选项来控制。对于有启动限制（launch bounds）的函数，`maxrregcount`的值被忽略。
 
