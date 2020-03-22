@@ -2,6 +2,8 @@
 
 [CUDA C Best Paratices Guide](CUDA-C-Best-Practices-Guide)
 
+[CUDA C Programming Guide](CUDA-C-Programming-Guide)
+
 CUDA Runtime API：函数以`cuda`开头。
 
 CUDA Driver API：函数以`cu`开头。

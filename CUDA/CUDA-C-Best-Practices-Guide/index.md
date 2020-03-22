@@ -1,6 +1,6 @@
 \[[上级目录](..)\]
 
-参见 [CUDA C Best Paratices Guide](https://docs.nvidia.com/cuda/cuda-c-best-practices-guide/index.html)
+参见 [CUDA C Best Paratices Guide Reference](https://docs.nvidia.com/cuda/cuda-c-best-practices-guide/index.html)
 
 
 # 9. 内存优化
@@ -246,11 +246,20 @@ thread 3:  3, 7, b
 方式一：线程第一次访问的分别是`0, 3, 6, 9`，不连续，所以没有被合并访问；  
 方式二：线程第一次访问的分别是`0, 1, 2, 3`，连续，于是被合并访问。
 
-##### 全局内存合并访问的附加说明：
+##### *全局内存合并访问的附加说明：*
 
 **结构体**：
 
+[对齐要求](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#device-memory-accesses)
+
 可以使用__alignof()等进行对齐。
+
+```
+struct __align__(16) {
+    float x;
+    float y;
+};
+```
 
 **1D全局内存**：
 
