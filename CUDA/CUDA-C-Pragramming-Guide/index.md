@@ -52,7 +52,7 @@ ceil(T/warpSize, 1)
 
 ### 5.2.1 应用程序级别（Application Level）
 
-1. 属于相同的block，所以应该使用__syncthreads()并且通过共享内存共享数据。
+1. 属于相同的block，所以应该使用`__syncthreads()`并且通过共享内存共享数据。
 2. 属于不同的block，所以必须通过全局内存共享数据，并且使用两个不同的kernel，一个写，一个读。
 
 显然第二种方案不好，它调用了两个kernel，并且引入了全局内存。
@@ -80,10 +80,10 @@ ceil(T/warpSize, 1)
 
 如果所有操作数都是寄存器，那么延迟是由寄存器的相关性引起的，即某些输入操作数是由一些尚未完成执行的先前指令写入的。在这种情况下，等待时间等于前一条指令的执行时间，并且warp调度器必须在这段时间内调度其他warp的指令。执行时间因指令而异。在具有7.x计算能力的设备，大多数算术指令通常为4个时钟周期。这意味着每个多处理器需要16个活动线程束（4个周期，4个warp调度器）来隐藏算术指令延迟（假设所有指令都以最大吞吐量执行，否则需要的活动线程束个数可以减少）。如果独立的warps利用指令级并行，例如，在它所在的指令流中有多个独立的指令，那么就不需要这么多warps，因为一个warp的多个独立的指令可以连续执行。
 
-如果一些操作数在片外存储器中，那么延迟就更大，一般需要几百个时钟周期。保持warp调度器忙碌的warp数量依赖于kernel代码的指令级并行度。通常，如果不需要片外内存的指令（比如大部分时间在执行算术指令）数占比（这个比率成为程序的算术密集度（arithmetic intensity））越小，需要的warps数量就会越大。
+如果一些操作数在片外存储器中，那么延迟就更大，一般需要几百个时钟周期。保持warp调度器忙碌的warp数量依赖于kernel代码的指令级并行度。通常，如果不需要片外内存的指令（比如大部分时间在执行算术指令）数占比（这个比率称为程序的*算术密集度（arithmetic intensity）*）越小，需要的warps数量就会越大。
 
 
-*warp没有准备好执行下一条指令的另一个原因是，它在某个内存栅栏（Memory Fence Functions）或同步点（Memory Fence Functions）中等待。*
+*warp没有准备好执行下一条指令的另一个原因是，它在某个内存栅栏（[Memory Fence Functions](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#memory-fence-functions)）或同步点（[Memory Fence Functions](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#memory-fence-functions)）中等待。*
 
 同步点可以迫使多处理器处于空闲状态，因为越来越多的线程束等待在同步点之前完成指令的执行。在这种情况下，每个多处理器使用多个驻留blocks可以帮助减少空闲，因为来自不同block的warp不需要在同步点彼此等待。
 
@@ -326,9 +326,8 @@ BaseAddress + width * ty + tx
 
 [表3](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#arithmetic-instructions) 给出了各种计算功能设备的硬件固有支持的算术指令的吞吐量。
 
-|                                                                                                                                                  | 计算能力       |                    |                    |                    |                    |                    |                    |                    |
+| 计算能力                                                                                                                                     | 3.0, 3.2           | 3.5, 3.7           | 5.0, 5.2           | 5.3                | 6.0                | 6.1                | 6.2                | 7.x                |
 | ------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------ | ------------------ | ------------------ | ------------------ | ------------------ | ------------------ | ------------------ | ------------------ |
-|                                                                                                                                                  | 3.0, 3.2           | 3.5, 3.7           | 5.0, 5.2           | 5.3                | 6.0                | 6.1                | 6.2                | 7.x                |
 | 16-bit floating-point add, multiply, multiply-add                                                                                                | N/A                | N/A                | N/A                | 256                | 128                | 2                  | 256                | 128                |
 | 32-bit floating-point add, multiply, multiply-add                                                                                                | 192                | 192                | 128                | 128                | 64                 | 128                | 128                | 64                 |
 | 64-bit floating-point add, multiply, multiply-add                                                                                                | 8                  | 642                | 4                  | 4                  | 32                 | 4                  | 4                  | 323                |
