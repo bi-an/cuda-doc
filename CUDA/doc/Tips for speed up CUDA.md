@@ -6,7 +6,7 @@ There are a couple of things you can do to speed up your algorithm in the CUDA p
 
 This can be ensured by optimizing the number of resisters used by the Kernal and number of threads per block. We need to figure out the optimum register count per thread for the target device.
 
-2.) Avoid host to device and device to host memory transfers.Try to minimize Memory fetch operations so that the local cache need not be refreshed frequently.host to device data transfer bandwidth is 4 GB/s and divice to device data transfer bandwidth is 76.5 GB/s.So, do more computation on GPU rather then transfer data to and fro device to host.
+2.) Avoid host to device and device to host memory transfers.Try to minimize Memory fetch operations so that the local cache need not be refreshed frequently.host to device data transfer bandwidth is 4 GB/s and divice to device data transfer bandwidth is 76.5 GB/s.So, do more computation on GPU rather than transfer data to and from device to host.
 
 3.) Store runtime variables in registers for fastest execution of instructions.
 
@@ -18,7 +18,7 @@ If you have one large Kernel, try to split it up into multiple small ones – it
 
 6.) Texture reads are cached where as global memory reads are not. Use textures to store your data where possible.
 
-7.)Prevent threads from diverging, Conditional jumps should branch equal for all threads.Try to give conditional branching depands on multiple of wrap size.
+7.) Prevent threads from diverging, Conditional jumps should branch equal for all threads.Try to give conditional branching depands on multiple of wrap size.
 
 8.) Avoid loops which are run only by a minority of threads while the others are idle. All the threads in a block wait for every thread in that block to finish.
 
