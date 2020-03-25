@@ -495,30 +495,20 @@ MyKernel<<<blocksPerGrid, threadsPerBlock>>>(...);
 
 [Warps](https://en.wikipedia.org/wiki/Thread_block_(CUDA_programming))
 
-On the hardware side, a thread block is composed of ‘warps’. A warp is a set of 32 threads within a thread block such that all the threads in a warp execute the same instruction. These threads are selected serially by the SM.
+在硬件方面，线程块由“warp”组成。warp是一个线程块中32个线程的集合，这样warp中的所有线程都执行相同的指令。这些线程是由SM串行选择的。
 
-Once a thread block is launched on a multiprocessor (SM), all of its warps are resident until their execution finishes. Thus a new block is not launched on an SM until there is sufficient number of free registers for all warps of the new block, and until there is enough free shared memory for the new block.
+一旦一个线程块发起在一个SM上，所有的线程束将一直驻留直到执行完毕。因此，一个新的线程块不会被启动，直到SM上有足够的空闲寄存器和共享内存。
 
-一旦一个线程块发起在一个SM上，所有的线程束将一直驻留直到执行完毕。因此，一个新的线程块不会被启动在SM上，知道在空闲寄存器数量足够所有线程束使用之前，都。
-
-Consider a warp of 32 threads executing an instruction. If one or both of its operands are not ready (e.g. have not yet been fetched from global memory), a process called ‘context switching’ takes place which transfers control to another warp.[12] When switching away from a particular warp, all the data of that warp remains in the register file so that it can be quickly resumed when its operands become ready. When an instruction has no outstanding data dependencies, that is, both of its operands are ready, the respective warp is considered to be ready for execution. If more than one warps are eligible for execution, the parent SM uses a warp scheduling policy for deciding which warp gets the next fetched instruction.
-
-Different policies for scheduling warps that are eligible for execution are discussed below:[13]
-
-Round Robin (RR) - Instructions are fetched in round robin manner. RR makes sure - SMs are kept busy and no clock cycles are wasted on memory latencies.
-Least Recently Fetched (LRF) - In this policy, warp for which instruction has not been fetched for the longest time gets priority in the fetching of an instruction.
-Fair (FAIR)[13] - In this policy, the scheduler makes sure all warps are given ‘fair’ opportunity in the number of instruction fetched for them. It fetched instruction to a warp for which minimum number of instructions have been fetched.
-Thread block-based CAWS[14] (criticality aware warp scheduling) - The emphasis of this scheduling policy is on improving the execution time of the thread blocks. It allocated more time resources to the warp that shall take the longest time to execute. By giving priority to the most critical warp, this policy allows thread blocks to finish faster, such that the resources become available quicker.
-Traditional CPU thread context "switching" requires saving and restoring allocated register values and the program counter to off-chip memory (or cache) and is therefore a much more heavyweight operation than with warp context switching. All of a warp's register values (including its program counter) remain in the register file, and the shared memory (and cache) remain in place too since these are shared between all the warps in the thread block.
-
-In order to take advantage of the warp architecture, programming languages and developers need to understand how to coalesce memory accesses and how to manage control flow divergence. If each thread in a warp takes a different execution path or if each thread accesses significantly divergent memory then the benefits of the warp architecture are lost and performance will significantly degrade.
+假设一个有32个线程的线程束执行一条指令，如果一个或多个线程的操作数没有就绪（比如还没有从全局内存上取回），这时候会发生“上下文切换”，从一个warp切换到另外一个所有数据都在寄存器文件中（操作数就绪，所以可以立即执行）的warp。当一条指令没有显著的数据依赖时，也就是说，它的操作数都准备好了，相应的warp就可以执行了。如果有多个warp有资格执行，则父SM使用warp调度策略来决定哪个warp获得下一个获取的指令。
 
 **线程束调度策略：**
 
-轮循（Round Robin）：指令管理器以轮循方式取得指令，SMs保持忙碌并且没有时钟周期浪费在访存延迟上。
+1. 轮循（Round Robin）：指令管理器以轮循方式取得指令，SMs保持忙碌并且没有时钟周期浪费在访存延迟上。
 
-最近最少获取（LRF，Least Recently Fetch）：最长时间没有获取指令的线程束将拥有更高的优先级。
+2. 最近最少获取（LRF，Least Recently Fetch）：最长时间没有获取指令的线程束将拥有更高的优先级。
 
-公平（Fair）：优先将指令发给当前指令数较少的线程束，保证每个线程束执行的指令数公平。
+3. 公平（Fair）：优先将指令发给当前指令数较少的线程束，保证每个线程束执行的指令数公平。
 
-基于线程块的临界区唤醒线程束调度（CAWS，Criticality Aware Warp Scheduling）：旨在提高线程块的执行时间。给予需要更多执行时间的线程束以更多的时间资源。通过基于最关键（临界）线程束更高优先级，可以提高线程块更快执行完毕，从而资源可以更快获得。
+4. 基于线程块的临界区唤醒线程束调度（CAWS，Criticality Aware Warp Scheduling）：旨在提高线程块的执行时间。给予需要更多执行时间的线程束以更多的时间资源。通过基于最关键（临界）线程束更高优先级，可以提高线程块更快执行完毕，从而资源可以更快获得。
+
+为了利用warp架构，编程语言和开发人员需要了解如何合并内存访问以及如何管理控制流分歧。如果warp中的每个线程采用不同的执行路径，或者每个线程访问的内存明显不同，那么warp架构的好处就会丧失，性能也会显著下降。
