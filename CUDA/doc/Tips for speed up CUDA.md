@@ -32,7 +32,7 @@ If you have one large Kernel, try to split it up into multiple small ones – it
 
 12.) For fastest global memory access, use coalescence of global memory.
 
-13.) Try to avoid multiple threads accessing the same memory element,sothat no bank conflict is possible on shared and constant memory.
+13.) Try to avoid multiple threads accessing the same memory element,so that no bank conflict is possible on shared and constant memory.
 
 14.) Try to avoid bank conflicts for reading memories.To achive high memory bandwidth, shared and constant memories are devided into equally sized memory modules, called banks.
 
@@ -74,3 +74,5 @@ This will give various information at the time of compilation e.g.
 - Longest free list size
 
 - Average free list size
+
+21.) nvprof: The nvprof profiling tool enables you to collect and view profiling data from the command-line.
