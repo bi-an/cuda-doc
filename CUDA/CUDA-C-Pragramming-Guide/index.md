@@ -493,7 +493,7 @@ MyKernel<<<blocksPerGrid, threadsPerBlock>>>(...);
 
 
 
-[Warps](https://en.wikipedia.org/wiki/Thread_block_(CUDA_programming))
+# [线程束（Warps）](https://en.wikipedia.org/wiki/Thread_block_(CUDA_programming))
 
 在硬件方面，线程块由“warp”组成。warp是一个线程块中32个线程的集合，这样warp中的所有线程都执行相同的指令。这些线程是由SM串行选择的。
 
