@@ -297,6 +297,10 @@ warp大小为32个线程，并且bank数量也为32，因此在warp中的任何�
 共享内存具有32个存储体，这些存储体组织为连续的32位字映射到连续的存储体。每个存储体每个时钟周期具有32位的带宽。  
 参见 [H.4.3 Shared Memory](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#shared-memory-5-x)
 
+**TODO：**bank到底是什么？是专门的硬件吗？64 KB的共享内存，却只有32-bit * 32的bank，bank是怎么读写共享内存呢？访问double类型时，bank只能存放16个数据，那么一个warp的32个线程怎么访问32个数据呢？分两次吗？
+
+**补充：**在3.x及以上计算能力，没有bank conflict的查看工具。因为这些计算能力之后，驻留的warps更多，没有冲突的共享内存访问可能被合并，如此，bank conflict变得不再重要。
+
 存储体可以使用[`cudaDeviceSetSharedMemConfig()`](https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__DEVICE.html#group__CUDART__DEVICE_1ga4f3f8a422968f9524012f43ba852058)函数设置为4字节、8字节，默认为4字节。
 （共享内存配置见 [cudaSharedMemConfig](https://docs.nvidia.com/cuda/cuda-runtime-api/group__CUDART__TYPES.html#group__CUDART__TYPES_1g6e62d15f3c224625e8c9aa946f1709a6)）。
 

@@ -88,15 +88,7 @@ __global__ void MatMulKernel(Matrix A, Matrix B, Matrix C) {
 		// 访存次数为 BLOCK_SIZE * BLOCK_SIZE * 2
 		// 不然，A的一行可以对于B的所有列，等等，总共访存次数为 (BLOCK_SIZE * BLOCK_SIZE)^2
 		__shared__ double As[BLOCK_SIZE][BLOCK_SIZE]; // 作用域为 block，所以只会分配一次，与 for 循环没有关系
-		__shared__ double Bs[BLOCK_SIZE][BLOCK_SIZE];
-
-		//__syncthreads();
-		//for (int i = 0; i < BLOCK_SIZE; i++) {
-		//	for (int j = 0; j < BLOCK_SIZE; j++)
-		//		printf("%f ", As[i][j]);
-		//	printf("\n");
-		//}
-
+		__shared__ double Bs[BLOCK_SIZE][BLOCK_SIZE]; // TODO: bank conflict
 
 		As[row][col] = GetElement(Asub, row, col);
 		Bs[row][col] = GetElement(Bsub, row, col);
