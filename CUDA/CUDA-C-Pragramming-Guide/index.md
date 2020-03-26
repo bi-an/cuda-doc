@@ -297,6 +297,8 @@ BaseAddress + width * ty + tx
 
 因此，为了获得最佳性能，重要的是要了解内存地址如何映射到内存库，以便调度内存请求，从而最大程度地减少库冲突。这分别在  [Compute Capability 3.x](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#compute-capability-3-0), [Compute Capability 5.x](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#compute-capability-5-x), [Compute Capability 6.x](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#compute-capability-6-x), 和 [Compute Capability 7.x](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#compute-capability-7-x) 中描述。 
 
+**猜测：**访问同一`bank`中不同的内存位置会发生`bank conflict`，本质可能是访存指令的不同。从数字电路上看，访存可能是逻辑门（例如异或门）电路实现的，比如读取8-bit的前半部分则将前4-bit的输入端设置为0，指令为`00001111`；读取后半部分，则指令为`11110000`。如果warp中两个线程同时访存，那么就必须串行。
+
 **常量内存**
 
 常量内存空间驻留在设备内存中，并缓存在常量缓存中。
