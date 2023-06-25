@@ -57,3 +57,5 @@ PID:85280
 echo PID:$$
 PID:85281
 ```
+
+可以看到，两行recipe打印的PID是不同的。
