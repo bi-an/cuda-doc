@@ -33,7 +33,7 @@ recipe是一个make将要执行的动作（action）。一个recipe可能包好�
 **请注意：** 你需要在每一个recipe行的开头放置一个tab符！如果你更喜欢其他符号而不是tab，你可以设置.RECIPEPREFIX变量为一个替代字符
 （见[其他特殊字符](https://www.gnu.org/software/make/manual/html_node/Special-Variables.html)）。
 
-**译者注：** 每个recipe行创建一个bash来执行命令，这意味着上一行recipe设置的环境变量在其他recipe行是无效的。测试代码如下：
+**译者注：** 每个recipe行会新建一个bash来执行命令，这意味着上一行recipe设置的环境变量在其他recipe行是无效的。测试代码如下：
 
 ```makefile
 all:
