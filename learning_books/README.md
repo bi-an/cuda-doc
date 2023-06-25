@@ -5,7 +5,9 @@
 - typora：现在已经开始收费。
 
 VSCode markdown插件：
-- Mardown All in One: 提供快捷键、表格制作器等工具，帮助更快的编写markdown文件。
+- Mardown All in One: 提供快捷键，帮助更快的编写markdown文件。
 - Markdown+Math：提供数学公式支持。
 - Markdown Preview Enhanced: 将原生markdown预览的黑色背景改成白色。
 - Markdown Preview Github Styling：提供Github风格的预览。
+
+[Markdown在线表格生成](https://www.tablesgenerator.com/markdown_tables)。
