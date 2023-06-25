@@ -1,3 +1,7 @@
+# 简介
+
+该目录保存计算机技术相关的读书笔记。
+
 # Markdown编辑器
 
 推荐的[markdown编辑器](https://www.zhihu.com/tardis/zm/art/103348449?source_id=1003)：
