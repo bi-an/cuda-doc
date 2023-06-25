@@ -16,8 +16,11 @@ make重新编译程序（program）时，每一个改动的C源文件都必须�
 一个简单的makefile包含以下形式的“规则（rules）”：
 
 > target ... : prerequisites ...
+>
 > 	recipe
+>
 > 	...
+>
 > 	...
 
 target通常是一个程序生成的文件名，比如可执行或目标文件（executable or object files）。
