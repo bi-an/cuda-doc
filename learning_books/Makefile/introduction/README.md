@@ -41,6 +41,14 @@ all:
 	echo PID:$$$$
 ```
 
+语法解释：Makefile中`$$`表示转义`$`符号，所以最终转递给shell的命令是：
+
+```bash
+echo PID:$$
+```
+
+而bash语法中`$$`表示当前进程的PID。
+
 测试结果：
 
 ```text
@@ -49,12 +57,3 @@ PID:85280
 echo PID:$$
 PID:85281
 ```
-
-
-解释：Makefile中`$$`表示转义`$`符号，所以最终转递给shell的命令是：
-
-```bash
-echo PID:$$
-```
-
-而bash语法中`$$`表示当前进程的PID。
