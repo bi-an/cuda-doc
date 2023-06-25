@@ -10,4 +10,4 @@ VSCode markdown插件：
 - Markdown Preview Enhanced: 将原生markdown预览的黑色背景改成白色。
 - Markdown Preview Github Styling：提供Github风格的预览。
 
-[Markdown在线表格生成器](https://www.tablesgenerator.com/markdown_tables)。
+[在线表格生成器](https://www.tablesgenerator.com/markdown_tables)：可以生成Markdown或text的表格。
