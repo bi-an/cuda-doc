@@ -50,3 +50,24 @@ sudo apt-get install openssh-server
 ```bash
 sudo service ssh start
 ```
+
+## 通过https登录到github
+
+`git push`不再支持输入用户名和密码，当提示输入密码时，需要输入personal access token.
+
+步骤1：在github上[创建personal access token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#creating-a-personal-access-token-classic)；
+
+步骤2：[在命令行上使用personal access token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens#using-a-personal-access-token-on-the-command-line)；
+
+步骤3：为了避免每次都需要输入personal access token，可以将其[缓存在git client上](https://docs.github.com/en/get-started/getting-started-with-git/caching-your-github-credentials-in-git)：
+
+```bash
+gh auth login
+```
+
+注：使用`gh`命令需要先安装GitHub CLI：
+
+```bash
+sudo apt-get install gh
+```
+
