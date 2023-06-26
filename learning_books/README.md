@@ -16,6 +16,8 @@ VSCode markdown插件：
 
 [在线表格生成器](https://www.tablesgenerator.com/markdown_tables)：可以生成Markdown、Text、HTML、LaTex、MediaWiki格式的表格。
 
-# WSL
+# 轻量级虚拟机WSL
 
-WSL, [Windows Subsystem for Linux](https://learn.microsoft.com/en-us/windows/wsl/install)，是Windows提供的轻量级Linux虚拟机。
+WSL，[Windows Subsystem for Linux](https://learn.microsoft.com/en-us/windows/wsl/install)，是Windows提供的轻量级Linux虚拟机。
+
+安装教程：见[链接](https://zhuanlan.zhihu.com/p/170210673)。
