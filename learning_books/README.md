@@ -18,4 +18,4 @@ VSCode markdown插件：
 
 # WSL
 
-WSL, (Windows Subsystem for Linux](https://learn.microsoft.com/en-us/windows/wsl/install)，是Windows提供的轻量级Linux虚拟机。
+WSL, [Windows Subsystem for Linux](https://learn.microsoft.com/en-us/windows/wsl/install)，是Windows提供的轻量级Linux虚拟机。
