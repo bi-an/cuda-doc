@@ -15,3 +15,7 @@ VSCode markdown插件：
 - Markdown Preview Github Styling：提供Github风格的预览。
 
 [在线表格生成器](https://www.tablesgenerator.com/markdown_tables)：可以生成Markdown、Text、HTML、LaTex、MediaWiki格式的表格。
+
+# WSL
+
+WSL, (Windows Subsystem for Linux](https://learn.microsoft.com/en-us/windows/wsl/install)，是Windows提供的轻量级Linux虚拟机。
