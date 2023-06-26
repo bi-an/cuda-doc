@@ -6,6 +6,8 @@ github pages简介：[官方链接][4]。
 
 github pages使用了[CNAME record](https://en.wikipedia.org/wiki/CNAME_record)技术，参考：[链接1][1]、[链接2][2]、[Custom domains in Github Pages][3]。
 
+注：[Read the Docs](https://readthedocs.org/)也是一个很好的搭建个人主页的网站。
+
 ## Github Pages 站点类型
 
 有3种类型的 Github Pages 站点（sites）：project, user 和 organization 。
