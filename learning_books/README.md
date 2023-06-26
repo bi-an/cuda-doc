@@ -71,3 +71,8 @@ gh auth login
 sudo apt-get install gh
 ```
 
+# 配置主页
+
+## mkdocs
+
+[mkdocs](https://www.mkdocs.org/)是一个快速的静态网页生成器。
