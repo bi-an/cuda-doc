@@ -23,4 +23,4 @@ Makefile:8: find1= $
 
 - 多个makefile脚本同时存在
 
-按照GNUmakefile、Makefile、makefile顺序查找，找到为止。比如GNUmakefile和Makefile同时存在，那么找到了GNUmakefile就停止，不会执行Makefile脚本。
+按照GNUmakefile、makefile、Makefile顺序查找，找到为止。比如GNUmakefile和Makefile同时存在，那么找到了GNUmakefile就停止，不会执行Makefile脚本。
