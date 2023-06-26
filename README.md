@@ -2,7 +2,23 @@
 
 这是使用[github pages](https://docs.github.com/en/pages)搭建的个人主页。
 
+github pages简介：[官方链接][4]。
+
 github pages使用了[CNAME record](https://en.wikipedia.org/wiki/CNAME_record)技术，参考：[链接1][1]、[链接2][2]、[Custom domains in Github Pages][3]。
+
+## Github Pages 站点类型
+
+有3种类型的 Github Pages 站点（sites）：project, user 和 organization 。
+
+Project sites 连接到 github 上特定 project ，比如 Javascript library 或 recipe collection。user 或 organization sites 连接到 github.com 的特定账户。
+
+发布 user site ，你必须创建一个你的个人账户下的一个名为 `<username>.github.io` 的 repository 。发布 organization site ，你必须创建一个组织所有的名为 `<organization>.github.io` 的 repository 。除非你使用 custom domain ，否则 user 和 organization sites 将位于 `http(s)://<username>.github.io` 或 `http(s)://<organization>.github.io` 。
+
+project site 的源文件存储在作为 project 的相同的 repository 中。除非使用 custom domain ， 否则 project sites 将位于 `http(s)://<username>.github.io/<repository>` 或 `http(s)://<organization>.github.io/<repository>` 。
+
+有关如何自定义影响您网站的域名的更多信息，参见"[About custom domains and GitHub Pages](https://docs.github.com/en/pages/configuring-a-custom-domain-for-your-github-pages-site/about-custom-domains-and-github-pages)"。
+
+每个 github 账户允许创建 1 个 user 或 organization 站点。无论是被组织还是个人所有，project 站点的个数不限制。
 
 
 # 2. 配置前准备
@@ -78,13 +94,22 @@ sudo apt-get install gh
 ```
 
 
-# 3. 配置主页
+# 3. 静态站点生成器
+
+以下几种[静态站点生成器][4]都可以用来搭建个人主页。如果使用除JekyII外的工具，则需要配置Github Actions以构建和发布你的站点。
 
 ## 3.1. mkdocs
 
 [mkdocs](https://www.mkdocs.org/)是一个快速的静态网页生成器。
 
+## 3.2. JekyII
+
+Jekyll 是一个静态站点生成器，内置对 GitHub Pages 的支持和简化的构建进程。
+
+参见[About GitHub Pages and Jekyll](https://docs.github.com/en/pages/setting-up-a-github-pages-site-with-jekyll/about-github-pages-and-jekyll)。
+
 
 [1]: https://www.zhihu.com/question/39301250
 [2]: https://www.zhihu.com/question/26609475
 [3]: https://docs.github.com/en/pages/configuring-a-custom-domain-for-your-github-pages-site/about-custom-domains-and-github-pages#using-a-subdomain-for-your-github-pages-site
+[4]: https://docs.github.com/en/pages/getting-started-with-github-pages/about-github-pages
