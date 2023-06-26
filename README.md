@@ -96,7 +96,7 @@ sudo apt-get install gh
 
 # 3. 静态站点生成器
 
-以下几种[静态站点生成器][4]都可以用来搭建个人主页。如果使用除JekyII外的工具，则需要配置Github Actions以构建和发布你的站点。
+以下几种[静态站点生成器][4]都可以用来搭建个人主页。如果使用除JekyII外的工具，则需要配置[Github Actions](https://docs.github.com/en/actions/learn-github-actions/understanding-github-actions)以构建和发布你的站点。
 
 ## 3.1. mkdocs
 
@@ -106,7 +106,7 @@ sudo apt-get install gh
 
 Jekyll 是一个静态站点生成器，内置对 GitHub Pages 的支持和简化的构建进程。
 
-参见[About GitHub Pages and Jekyll](https://docs.github.com/en/pages/setting-up-a-github-pages-site-with-jekyll/about-github-pages-and-jekyll)。
+参见 [About GitHub Pages and Jekyll](https://docs.github.com/en/pages/setting-up-a-github-pages-site-with-jekyll/about-github-pages-and-jekyll) 。
 
 
 [1]: https://www.zhihu.com/question/39301250
