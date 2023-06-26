@@ -21,3 +21,32 @@ VSCode markdown插件：
 WSL，[Windows Subsystem for Linux](https://learn.microsoft.com/en-us/windows/wsl/install)，是Windows提供的轻量级Linux虚拟机。
 
 安装教程：见[链接](https://zhuanlan.zhihu.com/p/170210673)。
+
+## WSL默认没有启用systemctl：
+
+启用systemctl的方法：[链接](https://askubuntu.com/questions/1379425/system-has-not-been-booted-with-systemd-as-init-system-pid-1-cant-operate)。
+
+替代方法：不需要启动systemctl，因为会比较占用资源，启动也会变慢。可以使用service命令替代。
+
+## WSL默认没有安装openssl-server：
+
+使用ssh连接到服务器时，需要服务器运行着sshd程序，否则连接不上，会出现"[Connection refused](https://www.makeuseof.com/fix-ssh-connection-refused-error-linux/)"错误。
+
+参考[链接](https://askubuntu.com/questions/1339980/enable-ssh-in-wsl-system)。
+
+查看openssh-server有没有安装：
+```bash
+dpkg --list | grep ssh
+```
+
+注：如果安装了openssh-server，执行which sshd可以看到路径。
+
+WSL默认没有安装openssh-server，安装方法：
+```bash
+sudo apt-get install openssh-server
+```
+
+启动ssh：
+```bash
+sudo service ssh start
+```
