@@ -22,6 +22,13 @@ project site 的源文件存储在作为 project 的相同的 repository 中。�
 
 每个 github 账户允许创建 1 个 user 或 organization 站点。无论是被组织还是个人所有，project 站点的个数不限制。
 
+## GitHub Pages 访问方法
+
+参考[官方文档](https://docs.github.com/en/pages/getting-started-with-github-pages/creating-a-github-pages-site#next-steps)。
+
+例如，你的project站点配置的发布源是`gh-pages`分支，然后在`gh-pages`分支上创建了一个`about/contact-us.md`文件，你将可以在`https://<user>.github.io/<repository>/about/contact-us.html`访问它。
+
+你也可以使用`Jekyll`等静态网页生成器来给你的github page配置一个主题。
 
 # 2. 配置前准备
 
