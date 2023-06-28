@@ -30,6 +30,10 @@ project site 的源文件存储在作为 project 的相同的 repository 中。�
 
 你也可以使用`Jekyll`等静态站点生成器来给你的github page配置一个主题。
 
+## 站点发布常见问题的解决方法
+
+- [Permission denied to github-actions[bot]](https://stackoverflow.com/questions/72851548/permission-denied-to-github-actionsbot)
+
 # 2. 配置前准备
 
 ## 2.1. Markdown编辑器
