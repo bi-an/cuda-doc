@@ -34,6 +34,10 @@ project site 的源文件存储在作为 project 的相同的 repository 中。�
 
 - [Permission denied to github-actions[bot]](https://stackoverflow.com/questions/72851548/permission-denied-to-github-actionsbot)
 
+## Github workflows
+
+参考[官方文档](https://docs.github.com/zh/actions/using-workflows/workflow-syntax-for-github-actions)。
+
 # 2. 配置前准备
 
 ## 2.1. Markdown编辑器
