@@ -93,6 +93,25 @@ gh auth login
 sudo apt-get install gh
 ```
 
+### 2.2.4 执行git pull/push时，出现"The authenticity of host 'github.com (20.205.243.166)' can't be established. ED25519 key fingerprint is SHA256:..."错误
+
+报错解释：
+
+这个报错信息通常出现在使用SSH连接到一个新的主机时。它表示你的计算机无法验证远程服务器的身份，因为服务器的公钥不在你本地计算机的known_hosts文件中。这是SSH为了防止"中间人"攻击而进行的安全检查。
+
+解决方法：
+
+验证指纹信息：你可以查看远程主机的指纹信息，并与服务器gitee.com的公钥指纹进行对比，确保它们匹配。你可以在~/.ssh/known_hosts文件中找到已知主机的公钥指纹。
+
+如果确认指纹正确无误，且你信任这个服务器，可以添加这个主机及其公钥到你的known_hosts文件中，以便SSH不再警告。执行以下命令：
+
+ssh-keyscan -H gitee.com >> ~/.ssh/known_hosts
+
+如果你不想添加到known_hosts文件中，可以在第一次连接时使用ssh -o StrictHostKeyChecking=no来跳过这个检查。但这样做会降低安全性。
+
+如果你是在多个服务器上使用相同的IP地址，并且之前已经添加过这个IP的记录，那么可能是服务器的公钥发生了变化，这种情况下你应该联系服务器管理员确认公钥的变更。
+
+注意：在实际生产环境中，不建议无条件信任新的SSH指纹，除非你完全了解这个服务器的来源和身份。
 
 # 3. 静态站点生成器
 
@@ -101,6 +120,8 @@ sudo apt-get install gh
 ## 3.1. mkdocs
 
 [mkdocs](https://www.mkdocs.org/)是一个快速的静态网页生成器。
+
+发布个人网站的方法：参见[mkdocs-material官网](https://squidfunk.github.io/mkdocs-material/publishing-your-site/)。
 
 ## 3.2. JekyII
 
