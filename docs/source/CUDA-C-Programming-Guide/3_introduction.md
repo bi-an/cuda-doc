@@ -1,5 +1,5 @@
 
-参见 [CUDA C Programming Guide Reference](https://docs.nvidia.com/cuda/cuda-c-programming-guide)
+## 3. 简介
 
 ### 3.1.4 应用程序兼容性（Application Compatibility）
 

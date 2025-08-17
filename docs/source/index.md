@@ -1,19 +1,26 @@
-\[[上级目录](..)\]
+# 项目首页
 
-[CUDA C Best Paratices Guide](CUDA-C-Best-Practices-Guide)
+欢迎访问我的 Sphinx 项目！以下是本项目的章节内容。
 
-[CUDA C Programming Guide](CUDA-C-Programming-Guide)
+```{toctree}
+:maxdepth: 2
+:caption: "目录"
 
-# CUDA编程基本知识
+CUDA-C-Best-Practices-Guide/index.md
+CUDA-C-Programming-Guide/index.md
+```
+
+
+## CUDA编程基本知识
 
 CUDA Runtime API：函数以`cuda`开头。
 
 CUDA Driver API：函数以`cu`开头。
 
 
-## 延迟（Latency）
+### 延迟（Latency）
 
-### 指令延迟
+#### 指令延迟
 
 | 数据类型 	| 字长（bits） 	|       操作      	| 延迟（cycles） 	|                                          备注                                          	|
 |:--------:	|:------------:	|:---------------:	|:--------------:	|:--------------------------------------------------------------------------------------:	|
@@ -47,7 +54,7 @@ CUDA Driver API：函数以`cu`开头。
 >对单精度浮点数常量，使用f后缀定义，比如3.141592653f  
 >对数学函数的单精度版本，也使用f后缀定义，比如sinf().
 
-### 访存延迟
+#### 访存延迟
 
 | 内存类型         	| 延迟    	|
 |------------------	|---------	|
@@ -55,6 +62,6 @@ CUDA Driver API：函数以`cu`开头。
 | Global Memory    	| 400-600 	|
 
 
-## 性能指南
+### 性能指南
 
 《CUDA中文手册》第5章
