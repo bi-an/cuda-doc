@@ -10,3 +10,5 @@ plugins:
 
 # 源码路径
 source: source
+# 构建输出路径
+destination: _site
