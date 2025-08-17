@@ -3,4 +3,4 @@
 **/*.exe
 **/*.lib
 **/*.exp
-_site
+build/

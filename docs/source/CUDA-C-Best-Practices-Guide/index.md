@@ -1,4 +1,3 @@
-\[[上级目录](..)\]
 
 参见 [CUDA C Best Paratices Guide Reference](https://docs.nvidia.com/cuda/cuda-c-best-practices-guide/index.html)
 

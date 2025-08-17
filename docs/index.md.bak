@@ -1,8 +1,9 @@
-# 异步
+## 异步
+
 由于CPU与GPU的异步执行性，可以实现异步函数。GPU执行计算密集型任务时，CPU将返回，例如去处理网络IO等。
 
 
-# 架构
+## 架构
 每个SM都有L1 cache，所有的SM共享L2 cache；
 L1 cache：用于缓存local memory，包括临时寄存器溢出。
 L2 cache：用于缓存global memory。
@@ -16,7 +17,7 @@ L2 cache：用于缓存global memory。
 >>>（1）48 KB作为shared memory，16 KB作为L1 cache；
 >>>（2）32 KB作为shared memory，32 KB作为L1 cache。
 
-# 设备内存访问
+## 设备内存访问
 内存分布对指令吞吐量的影响：根据一个warp内的线程和内存地址的分布，可能会出现内存访问指令被发起（re-issue）多次的情况。例如，全局内存地址越分散，指令吞吐量就越小。
 指令吞吐量：执行一条指令所需的时钟数。
 ## 全局内存（global memory / device memory）
@@ -36,12 +37,12 @@ L2缓存只能降低访存次数（over-fetch），例如，对地址分散的�
 
 *内存对齐会增加cache概率，减少访存（memory transaction）次数*
 
-## 共享内存（shared memory）
+### 共享内存（shared memory）
 bank conflict：存储体/存储池冲突
 
 ||3.x|5.x|6.x|7.x|
 
-## 不同计算能力（Compute Capabilities）比较
+### 不同计算能力（Compute Capabilities）比较
 ||3.x|5.x|6.x|7.x|
 ||---|---|---|---|
 |L1 cache|L1/shared memory|L1/texture|
@@ -54,10 +55,9 @@ bank conflict：存储体/存储池冲突
 |warp Schedulers|4|4|
 
 
-# D. 执行环境与内存模型
-## D.2. 执行环境
-### D.2.1. 父子线程格（Parent and child grids）
+## D. 执行环境与内存模型
+### D.2. 执行环境
+#### D.2.1. 父子线程格（Parent and child grids）
 Parent grid中的线程可以创建grid，称为线程格嵌套（grids nesting）
 嵌套grids会隐式同步。
-### D.2.2. CUDA原语作用域
-#### 
+#### D.2.2. CUDA原语作用域

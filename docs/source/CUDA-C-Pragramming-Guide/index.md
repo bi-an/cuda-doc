@@ -1,4 +1,3 @@
-\[[上级目录](..)\]
 
 参见 [CUDA C Programming Guide Reference](https://docs.nvidia.com/cuda/cuda-c-programming-guide)
 
