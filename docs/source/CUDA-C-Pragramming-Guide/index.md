@@ -69,7 +69,7 @@ ceil(T/warpSize, 1)
 
 应该在各种函数单元之间并行执行。
 
-如 [4.2. 硬件多线程](#42-hardware-multithreading) 所述，GPU的SM主要依赖线程级并行来实现最大化函数单元利用率（maximize utilization of its functional units）的目的。因此，利用率直接与驻留线程束（resident warps）关联。每次指令发布，线程束调度器（warp scheduler）选择一条准备好执行的指令。这条指令可以是本warp的另一条独立指令——利用指令级并行（instruction-level parallelism），更可能的是另外一个warp的指令——利用线程级并行（thread-level parallelism）。如果一条指令被选中，那么它被发布到warp的*活动*线程。一个warp等待执行下一条指令的时钟周期数称为*延迟（latency）*。如果每个时钟周期，线程束调度器都有一些指令发布到一些warp，那么延迟就被隐藏（hidden）。隐藏`L`个时钟周期的延迟时间所需的指令数量取决于这些指令各自的吞吐量（有关各种算术指令的吞吐量，请参见 [5.4.1. 算术指令](#541-arithmetic-instruction)）。如果指令吞吐量达到最大，那么它将等于：
+如 [4.2. 硬件多线程] 所述，GPU的SM主要依赖线程级并行来实现最大化函数单元利用率（maximize utilization of its functional units）的目的。因此，利用率直接与驻留线程束（resident warps）关联。每次指令发布，线程束调度器（warp scheduler）选择一条准备好执行的指令。这条指令可以是本warp的另一条独立指令——利用指令级并行（instruction-level parallelism），更可能的是另外一个warp的指令——利用线程级并行（thread-level parallelism）。如果一条指令被选中，那么它被发布到warp的*活动*线程。一个warp等待执行下一条指令的时钟周期数称为*延迟（latency）*。如果每个时钟周期，线程束调度器都有一些指令发布到一些warp，那么延迟就被隐藏（hidden）。隐藏`L`个时钟周期的延迟时间所需的指令数量取决于这些指令各自的吞吐量（有关各种算术指令的吞吐量，请参见 [5.4.1. 算术指令](#541-arithmetic-instruction)）。如果指令吞吐量达到最大，那么它将等于：
 
 1. 4L：对于计算能力为5.x, 6.1, 6.2 and 7.x的设备，因为对于这些设备，一个SM每个时钟周期发送4条指令，每条指令提供给一个warp（因为有4个warp schedulers，所以每个时钟周期可以驻留4个warps）。参见 [Compute Capabilities](https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#compute-capabilities) 。
 2. 2L：对于计算能力为6.0的设备，因为对于这些设备，每个时钟周期发出两条指令，每条指令提供给两个不同的warps.
@@ -86,7 +86,7 @@ ceil(T/warpSize, 1)
 
 同步点可以迫使多处理器处于空闲状态，因为越来越多的线程束等待在同步点之前完成指令的执行。在这种情况下，每个多处理器使用多个驻留blocks可以帮助减少空闲，因为来自不同block的warp不需要在同步点彼此等待。
 
-一次kernel调用中，每个多处理器驻留的blocks和warps数量取决于此次调用的执行配置（kernel函数调用的参数配置）、多处理器中的内存资源和这个kernel的资源需求（见 [4.2. 硬件多线程](#42-hardware-multithreading) ）。编译器可以通过设置编译选项`-ptxas-options=-v`来报告寄存器和共享内存的使用量。
+一次kernel调用中，每个多处理器驻留的blocks和warps数量取决于此次调用的执行配置（kernel函数调用的参数配置）、多处理器中的内存资源和这个kernel的资源需求（见 [4.2. 硬件多线程] ）。编译器可以通过设置编译选项`-ptxas-options=-v`来报告寄存器和共享内存的使用量。
 
 一个block需要的共享内存大小等于静态和动态分配（kernel调用时的配置参数）的总量。
 
